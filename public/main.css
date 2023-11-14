@@ -1,0 +1,7 @@
+.user-container{
+  display: flex;
+  background-color: aquamarine;
+}
+.user{
+  color: #b13c3c;
+}
