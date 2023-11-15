@@ -15,6 +15,24 @@ const crud = {
   },
   // Generates HTML where each object is a div and each key value pair is a paragraph, set divClassName and pClassName for styling
   // The columns option is an array of all of the columns you want. If not specified all columns are returned.
+  generateHTMLKey: function(data, {divClassName, pClassName, columns}) {
+    const html = data.map((obj) => {
+      const item = document.createElement('div');
+      divClassName && item.classList.add(divClassName);
+      for (const key in obj) {
+        if (Object.hasOwnProperty.call(obj, key) && (!columns || columns.includes(key))) {
+          const propertyParagraph = document.createElement('p');
+          pClassName && propertyParagraph.classList.add(pClassName);
+          propertyParagraph.textContent = `${key}: ${obj[key]}`;
+          item.appendChild(propertyParagraph);
+        }
+      }
+      return item;
+    });
+    return html;
+  },
+  // Generates HTML where each object is a div and each value is a paragraph, set divClassName and pClassName for styling
+  // The columns option is an array of all of the columns you want. If not specified all columns are returned.
   generateHTML: function(data, {divClassName, pClassName, columns}) {
     const html = data.map((obj) => {
       const item = document.createElement('div');
@@ -39,7 +57,7 @@ const crud = {
     try {
       const res = await fetch(url);
       const data = await res.json();
-      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
+      return args.dataHandler && args.dataHandler(data,args)
     } catch (err) {
       console.error(err);
     }
@@ -52,7 +70,7 @@ const crud = {
     try {
       const res = await fetch(`${url}/${id}`);
       const data = await res.json();
-      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
+      return args.dataHandler && args.dataHandler(data,args)
     } catch (err) {
       console.error(err);
     }
@@ -72,7 +90,7 @@ const crud = {
     try {
       const res = await fetch(url, options);
       const data = await res.json();
-      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
+      return args.dataHandler && args.dataHandler(data,args)
     } catch (err) {
       console.error(err);
     }
