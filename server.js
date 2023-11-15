@@ -1,12 +1,24 @@
 import express from "express"
 import pool from "./db.js"
+import url from 'url';
+import path from 'path';
 
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const port = process.env.PORT || 3000
 const app = express();
 
 app.use(express.json())
 app.use(express.static("public"))
+
+
+app.use('/forum', express.static('private'));
+
+
+app.get('/forum', (req,res)=>{
+  res.sendFile(path.join(__dirname, 'private', 'forum','forum.html'));
+})
 
 //MESSAGES 
 
