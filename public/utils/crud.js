@@ -2,7 +2,7 @@
 
 const crud = {
   // Print function for logging data to the console.
-  print: function(data, columns) {
+  print: function(data, {columns}) {
     data.forEach((obj)=>{
       for (const key in obj){
           let string = ''
@@ -13,8 +13,9 @@ const crud = {
         }
       })
   },
-
-  generateHTML: function(data, divClassName, pClassName, columns) {
+  // Generates HTML where each object is a div and each key value pair is a paragraph, set divClassName and pClassName for styling
+  // The columns option is an array of all of the columns you want. If not specified all columns are returned.
+  generateHTML: function(data, {divClassName, pClassName, columns}) {
     const html = data.map((obj) => {
       const item = document.createElement('div');
       divClassName && item.classList.add(divClassName);
@@ -31,16 +32,14 @@ const crud = {
     return html;
   },
 
-
-  
   // getAll method retrieves all data from the specified URL.
   // It uses the Fetch API to make an asynchronous GET request.
   // The retrieved data is then passed to the provided dataHandler function.
-  getAll: async function(url, {dataHandler = crud.print, divClassName, pClassName, columns} = {}) {
+  getAll: async function(url, args = {}) {
     try {
       const res = await fetch(url);
       const data = await res.json();
-      return dataHandlerSwitch(data, dataHandler, divClassName, pClassName, columns)
+      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
     } catch (err) {
       console.error(err);
     }
@@ -49,11 +48,11 @@ const crud = {
   // getOne method retrieves data for a specific ID from the specified URL.
   // It uses the Fetch API to make an asynchronous GET request with the ID appended to the URL.
   // The retrieved data is then passed to the provided dataHandler function.
-  getOne: async function(url, id, dataHandler) {
+  getOne: async function(url, id, args = {}) {
     try {
       const res = await fetch(`${url}/${id}`);
       const data = await res.json();
-      dataHandler(data);
+      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
     } catch (err) {
       console.error(err);
     }
@@ -62,7 +61,7 @@ const crud = {
   // createOne method sends a POST request to the specified URL with the provided data.
   // It uses the Fetch API with the 'application/json' Content-Type header.
   // The created data is then passed to the provided dataHandler function.
-  createOne: async function(url, body, dataHandler) {
+  createOne: async function(url, body, args = {}) {
     const options = {
       method: 'POST',
       headers: {
@@ -73,7 +72,7 @@ const crud = {
     try {
       const res = await fetch(url, options);
       const data = await res.json();
-      dataHandler(data);
+      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
     } catch (err) {
       console.error(err);
     }
@@ -82,7 +81,7 @@ const crud = {
   // updateOne method sends a PUT request to update data with a specific ID.
   // It uses the Fetch API with the 'application/json' Content-Type header.
   // The updated data is then passed to the provided dataHandler function.
-  updateOne: async function(url, id, body, dataHandler) {
+  updateOne: async function(url, id, body, args = {}) {
     const options = {
       method: 'PUT',
       headers: {
@@ -93,7 +92,7 @@ const crud = {
     try {
       const res = await fetch(`${url}/${id}`, options);
       const data = await res.json();
-      dataHandler(data);
+      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
     } catch (err) {
       console.error(err);
     }
@@ -101,30 +100,20 @@ const crud = {
 
   // deleteOne method sends a DELETE request to remove data with a specific ID.
   // It uses the Fetch API, and the deleted data is then passed to the provided dataHandler function.
-  deleteOne: async function(url, id, dataHandler) {
+  deleteOne: async function(url, id, args = {}) {
     const options = {
       method: 'DELETE',
     };
     try {
       const res = await fetch(`${url}/${id}`, options);
       const data = await res.json();
-      dataHandler(data);
+      return args.dataHandler ? args.dataHandler(data,args) : crud.print(data,args)
     } catch (err) {
       console.error(err);
     }
   },
 };
 
-function dataHandlerSwitch(data, dataHandler, divClassName, pClassName, columns){
-  switch(dataHandler){
-    case crud.print:
-      crud.print(data, columns)
-      break;
-    case crud.generateHTML:
-      return crud.generateHTML(data, divClassName, pClassName, columns)
-      break;
-  }
-}
 
 // Export the CRUD object for use in other modules.
 export default crud;
